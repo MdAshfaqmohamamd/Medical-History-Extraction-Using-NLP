@@ -1,2 +1,3 @@
-# -hypothetical-marketing-analysis
-identifying who our most profitable customers are. Are they married or unmarried, working or retired, premium or budget buyers etc… This will identifying the bestselling products.  So, given the transaction data, help us identify the top 3 most profitable products and characteristics of our most loyal customers.
+# -Medical History Extraction Using NLP
+In today’s healthcare landscape, maintaining and accessing accurate medical histories is crucial for effective patient care. Medical histories include vital information such as past diagnosis treatment, medications and family medical history. This Data is stored in unstructured formats(handwritten notes) or free-text entries in EHR’s. Extracting meaningful information From these unstructured texts poses a significant challenge 
+![image](https://github.com/user-attachments/assets/58c25f13-b882-4ef2-9ab4-aa435818d1af)
