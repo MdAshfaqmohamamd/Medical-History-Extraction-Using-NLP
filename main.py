@@ -1,29 +1,50 @@
-from fastapi import FastAPI
-from enum import Enum
+from fastapi import FastAPI, Form, UploadFile, File, HTTPException
+import uvicorn
+from extractor import extract
+import uuid
+import os
+import logging
+
+from db_utils import init_db
+init_db()
+
+# Setting up logger
+logger = logging.getLogger("uvicorn.error")
+logger.setLevel(logging.DEBUG)
 
 app = FastAPI()
 
-class AvailableCuisines(str, Enum):
-    indian = "indian"
-    american = "american"
-    italian = "italian"
+@app.post("/extract_from_doc")
+async def extract_from_doc(
+    file: UploadFile = File(...),
+    file_format: str = Form(...)
+):
+    try:
+        logger.info("Starting file upload and extraction process.")
+        content = await file.read()
 
-food_items = {
-    "indian": ["samosa", "dosa"],
-    "american": ["hot dog", "apple pie"],
-    "italian": ["pasta", "pizza"]
-}
+        FILE_PATH = os.path.join(
+            r"C:\Users\Admin\Desktop\projects\medical data extraction\backend\uploads",
+            str(uuid.uuid4()) + ".pdf"
+        )
 
-coupon_code = {
-    1: '10%',
-    2: '20%',
-    3: '30%'
-}
+        with open(FILE_PATH, "wb") as f:
+            f.write(content)
+        logger.info(f"File saved at {FILE_PATH}")
 
-@app.get("/get_items/{cuisine}")
-async def get_items(cuisine: AvailableCuisines):
-    return food_items.get(cuisine)
+        data = extract(FILE_PATH, file_format)
+        logger.info(f"Extraction completed for file format: {file_format}")
 
-@app.get("/get_coupon/{code}")
-async def get_items(code: int):
-    return {"discount_amount": coupon_code.get(code)}
+        if os.path.exists(FILE_PATH):
+            os.remove(FILE_PATH)
+            logger.info(f"Temporary file {FILE_PATH} removed.")
+
+        return data
+
+    except Exception as e:
+        logger.error(f"Error processing file: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="127.0.0.1", port=8000)
+
